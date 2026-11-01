@@ -1,0 +1,41 @@
+name: Build AIP Android APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: تحميل المشروع
+        uses: actions/checkout@v4
+
+      - name: فك ضغط المشروع
+        run: |
+          unzip -q AIP_Flutter_Android_Build_Kit.zip
+          ls -la AIP_Flutter_Project
+
+      - name: تثبيت Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: تجهيز Android
+        working-directory: AIP_Flutter_Project
+        run: |
+          flutter create --platforms=android --org com.aipcreative --project-name aip_app .
+
+      - name: بناء تطبيق APK
+        working-directory: AIP_Flutter_Project
+        run: |
+          flutter pub get
+          flutter build apk --release
+
+      - name: استخراج ملف APK
